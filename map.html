@@ -54,7 +54,7 @@ stroke:white;
   d3.json("http://abuchel.physics.uwo.ca/~obuchel/VIS_Analytics_Workshop/us.json", function(us) {
 	//browser asks for loading json via http, not file, otherwise erroring 'Cross origin requests are only supported for HTTP'
     var json = topojson.feature(us, us.objects.states).features;
-    d3.tsv("https://github.com/zhang4952/visualportfolio/blob/master/data/us-states-names.tsv", function(tsv){
+    d3.tsv("https://raw.githubusercontent.com/zhang4952/visualportfolio/master/data/us-states-names.tsv", function(tsv){
       var names = {};
       tsv.forEach(function(d,i){
         names[d.id] = d.name;
