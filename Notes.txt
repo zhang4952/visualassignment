@@ -1,0 +1,59 @@
+d3 SVG:
+- container -> shape -> attr
+ 1var circleData = [
+ 2  { "cx": 20, "cy": 20, "radius": 20, "color" : "green" },
+ 3  { "cx": 70, "cy": 70, "radius": 20, "color" : "purple" }];
+ 4
+ 5
+ 6var rectangleData = [
+ 7  { "rx": 110, "ry": 110, "height": 30, "width": 30, "color" : "blue" },
+ 8  { "rx": 160, "ry": 160, "height": 30, "width": 30, "color" : "red" }];
+ 9
+10var svgContainer = d3.select("body").append("svg")
+11                                     .attr("width",200)
+12                                     .attr("height",200);
+13
+14var circles = svgContainer.selectAll("circle")
+15                           .data(circleData)
+16                           .enter()
+17                           .append("circle");
+18
+19var circleAttributes = circles
+20                        .attr("cx", function (d) { return d.cx; })
+21                        .attr("cy", function (d) { return d.cy; })
+22                        .attr("r", function (d) { return d.radius; })
+23                        .style("fill", function (d) { return d.color; });
+24
+25var rectangles = svgContainer.selectAll("rect")
+26                             .data(rectangleData)
+27                             .enter()
+28                             .append("rect");
+29
+30var rectangleAttributes = rectangles
+31                           .attr("x", function (d) { return d.rx; })
+32                           .attr("y", function (d) { return d.ry; })
+33                           .attr("height", function (d) { return d.height; })
+34                           .attr("width", function (d) { return d.width; })
+35                           .style("fill", function(d) { return d.color; });
+
+rangePoints vs. rangeBands:
+- rangePoints: the distance between ordinal domains is range/n-1. 
+var x=d3.scale.ordinal()
+
+.domain(["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6","Grade 7"]);
+
+x.rangePoints([0,120]);
+
+then you have seven points and distance between is 120/(7-1) = 20
+
+var x=d3.scale.ordinal()
+
+.domain(["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6","Grade 7"]);
+
+x.rangeBands([0,120]);
+
+then you have seven blocks and the width of each block is 120/7 = 17
+
+
+
+

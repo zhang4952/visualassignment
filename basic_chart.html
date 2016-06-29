@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<!-- Practice Assignment 1
+Create a bar or a column chart. -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Fruit Bar Chart</title>  
+
+    <!-- JQuery & D3 -->  
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"></script>
+
+<style>
+    body {
+    	font: 10px sans-serif;
+    }
+
+    .chart {
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .axis path, .axis line {
+        fill: none;
+        stroke: #0000ff;
+        shape-rendering: crispEdges;
+        font-weight: bold;
+    }
+
+    .bar {
+        z-index: 1000;
+    }
+</style>
+</head>
+
+<body>
+<script>
+    $(document).ready(function() {
+
+    var margin = {top: 40, right: 40, bottom: 40, left: 40},
+            width = 600,
+			height = 500;
+           
+    var data = [{"Quantity": 100, "fruits": "Apples"}, {"Quantity": 60, "fruits": "Pears"}, {"Quantity": 70, "fruits": "Tangerines"}, 
+    {"Quantity": 90, "fruits": "Pomegranates"}, {"Quantity": 50, "fruits": "Oranges"}];
+
+    var x = d3.scale.linear()
+            .domain([0, d3.max(data, function(d) { return d.Quantity; })])
+            .range([0, width]);
+
+
+    var y = d3.scale.ordinal() 
+          .domain(Object.keys(data).map(function(k) {return data[k]["fruits"];}))
+          .rangeBands([height - margin.top - margin.bottom, 0]);
+
+    //Axis Definition
+
+    var xAxis = d3.svg.axis()
+            .scale(x) //links to x scale
+            .orient("bottom")
+            .ticks(10)
+            .tickSize(0)
+            .tickPadding(10);
+
+    var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            .ticks(5) //five fruits
+            .tickSize(0)
+            .tickPadding(10);
+
+    //Generate SVG
+
+    var svg = d3.select("#bar-demo").append("svg")
+            .attr("class", "chart")
+            .attr("width", width + margin.left + margin.right + 70) //add 70 so the right side of the x-axis can fully displayed
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+    svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(70, " + (height - margin.top - margin.bottom) + ")") //the horizontal positon of x-axis, higher number lower position 
+																							   //70 is the position of x-axis shift to the right so the longer label be fully displayed to the left of the y-axis
+            .call(xAxis);
+    svg.append("g")
+            .attr("class", "axis")
+			.attr("transform", "translate(70, 0)")
+            .call(yAxis);       
+    svg.selectAll(".chart")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar") //add a CSS class
+            .attr("x", 70) //start position of the bar
+            .attr("y", function(d) { return y(d.fruits) + 30; }) //start position of the bar, you can adjust it align with the label, higher the number lower the position
+            .attr("width", function(d) { return x(d.Quantity) ; }) //length of the bar
+            .attr("height", 10) //height of the bar
+    svg.selectAll(".rect")
+            .data(data)
+            .enter().append("svg:text")
+            .attr("text-anchor", "left")
+            .attr("x", function(d) { return x(d.Quantity); } ) //the position of number 
+            .attr("y", function(d) { return y(d.fruits); })
+            .attr("dx", "2em")
+            .attr("dy", "1.6em")
+            .text(function(d) { return d.Quantity ; });
+    svg.append("text")
+            .attr("text-anchor", "middle")
+			.style("font-size", "20px")
+             .attr("x", 50)
+             .attr("y", 0 - (margin.top / 2))
+             .text("Fruits and Quantity");
+});
+</script>
+
+    <div class="row">
+        <h1 class="text-center">Assignment 1: Chart</h1>
+    </div>
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-md-6 col-lg-offset-3">
+            <div id="bar-demo"></div> 
+        </div>
+    </div>
+</body>
+
+</html>

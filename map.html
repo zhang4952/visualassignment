@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<!-- Practice Assignment 3
+Make a choropleth map. You can us.json file. Add values for states. -->
+<meta charset="utf-8">
+<style>
+
+path {
+  stroke-linejoin: round;
+}
+.circle{
+fill: #737CA1;	
+stroke:white;	
+}
+.land {
+  fill: #ddd;
+}
+
+.states {
+  stroke: #fff;
+}
+
+.voronoi {
+  fill: none;
+  stroke: black;
+  stroke-width: 0.5px;
+}
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+  var width = 1500,
+      height = 1100,
+      centered;
+  
+  var color=[{"16":250, "53":87, "27":1, "38":89, "23":50,"26":53,"55":370,"30":160,"41":2560, "46":187, "33":3, "50":89, "36":5,"56":180,"19":5,"31":30,"25":70,"17":256, "42":87, "9":8, "44":89, "6":500,"49":50,"32":70,"39":30,"18":256, "34":87, "8":8, "54":89, "29":50,"20":400,"10":70,"24":5,"21":70,"51":100,"11":256, "4":87, "40":8, "35":89, "47":50,"37":120,"48":256, "5":87, "45":8, "1":89, "13":50,"28":150,"22":256, "12":87, "15":8, "2":89, "72":50,"78":300}];
+
+  var projection = d3.geo.albersUsa()
+  
+	var color_scale = d3.scale.quantize()
+	  .domain(d3.values(color[0]))
+	  .range(["#bae4bc","#7bccc4","#43a2ca","#0868ac"]);
+
+  var path = d3.geo.path()
+      .projection(projection)
+      .pointRadius(function(d){return Math.floor(color[1]/14);});
+	  
+  var svg = d3.select("body").append("svg")
+      .style("width", width)
+      .style("height", height);
+
+  var g = svg.append("g");
+
+  d3.json("http://abuchel.physics.uwo.ca/~obuchel/VIS_Analytics_Workshop/us.json", function(us) {
+	//browser asks for loading json via http, not file, otherwise erroring 'Cross origin requests are only supported for HTTP'
+    var json = topojson.feature(us, us.objects.states).features;
+    d3.tsv("https://gist.githubusercontent.com/mbostock/4090846/raw/07e73f3c2d21558489604a0bc434b3a5cf41a867/us-state-names.tsv", function(tsv){
+      var names = {};
+      tsv.forEach(function(d,i){
+        names[d.id] = d.name;
+      });
+    
+      g.append("g")
+        .attr("class", "states")
+        .selectAll("path")
+        .data(json)
+        .enter()
+        .append("path")
+        .attr("d", path)
+	    .style("fill", function(d){return color_scale(color[0][d.id]);});
+      
+       g.append("g")
+        .attr("class", "states-names")
+        .selectAll("text")
+        .data(json) //this is json, not names
+        .enter()
+        .append("svg:text")
+        .text(function(d){
+          return names[d.id];
+        })
+        .attr("x", function(d){
+            return path.centroid(d)[0];
+        })
+        .attr("y", function(d){
+            return  path.centroid(d)[1];
+        })
+        .attr("text-anchor","middle")
+        .attr('fill', 'black');
+
+    });
+  });
+  
+var legend = svg.selectAll('g.legendEntry')
+    .data(color_scale.range().reverse())
+    .enter()
+    .append('g').attr('class', 'legendEntry');
+
+legend
+    .append('rect')
+    .attr("x", width - 910)
+    .attr("y", function(d, i) {
+       return i * 20;
+    })
+   .attr("width", 10)
+   .attr("height", 10)
+   .style("stroke", "black")
+   .style("stroke-width", 1)
+   .style("fill", function(d){return d;}); 
+
+legend
+    .append('text')
+    .attr("x", width - 895) //leave 5 pixel space after the <rect>
+    .attr("y", function(d, i) {
+       return i * 20;
+    })
+    .attr("dy", "0.8em") //place text one line *below* the x,y point
+    .text(function(d,i) {
+        var extent = color_scale.invertExtent(d);        
+        return Math.round(extent[0]) + " - " + Math.round(extent[1]);
+    });
+	  
+</script>
+</body>
+

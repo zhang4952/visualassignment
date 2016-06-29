@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!-- Assignment 2 Make a chart for your own data using any of the following layouts:
+
+1) a pie chart;
+
+2) a stacked bar or column chart;
+
+3) a force layout;
+
+4) radial tree layout.
+
+Add colors and labels to nodes. Nodes can have any shape explained in this lesson. -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Assignment 2</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"></script>
+</head>
+<style>
+    body {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        position: relative;
+    }
+
+    #pie-chart {
+        position: relative;
+        left: 20px;
+    }
+
+    h1 {
+        padding-top: 20px;
+        padding-left: 20px;
+        text-align: left;
+    }
+
+    .arc text {
+        text-anchor: middle;
+        font-weight: bold;
+        font-size: 16px;
+        z-index: 1000;
+    }
+
+    .arc path {
+        stroke: #fff;
+    }
+
+</style>
+<script>
+    $(document).ready(function () {
+
+        d3.select("body").append("h1")
+                .text('Repository Content Types');
+
+        var margin = {top: 80, right: 80, bottom: 80, left: 80},
+                width = 600,
+                height = 500,
+                radius = Math.min(width, height) / 2;
+
+        d3.select("body").append("div")
+                .attr("id", "pie-chart")
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom);
+
+        var color = d3.scale.category20();
+
+        var arc = d3.svg.arc()
+                .outerRadius(radius - 10)
+                .innerRadius(0);
+
+        var labelArc = d3.svg.arc()
+                .outerRadius(radius - 70)
+                .innerRadius(radius + 5);
+
+        var pie = d3.layout.pie()
+                .sort(null)
+                .value(function (d) {
+                    return d.count;
+                });
+
+        var svg = d3.select("#pie-chart").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top)
+                .append("g")
+                .attr("transform", "translate(" + (width / 2) + "," + (height / 2) + ")");
+
+		d3.csv("data/content-types-2016.csv", type, function (error, data) {
+            if (error) throw error;
+
+            var g = svg.selectAll(".arc")
+                    .data(pie(data))
+                    .enter().append("g")
+                    .attr("class", "arc");
+
+            g.append("path")
+                    .attr("class", "path")
+                    .attr("d", arc)
+                    .style("fill", function (d) {
+                        return color(d.data.types);
+                    });
+
+            g.append("text")
+                    .attr("transform", function (d) {
+                        return "translate(" + labelArc.centroid(d) + ")";
+                    })
+                    .attr("dy", ".45em")
+                    .text(function (d) {
+                        return d.data.count;
+                    });
+
+            var legend = svg.selectAll(".legend")
+                    .data(data)
+                    .enter().append("g")
+                    .attr("class", "legend")
+                    .attr("transform", function(d, i) { return "translate(" + 250  + "," + (-200 + (i * 25)) + ")"; }); //lower x-axis, legend shifts to left, higer the y-axis including negative, lower the legend
+
+            legend.append("rect")
+                    .attr("width", 10)
+                    .attr("height", 10)
+                    .style("fill", function (d) {
+                        return color(d.types);
+                    });
+
+            legend.append("text")
+                    .attr("x", 20)
+                    .attr("dy", ".85em")
+                    .text(function (d) { return d.types; });
+        });
+
+        function type(d) {
+            d.count = +d.count;
+            return d;
+        }
+
+    });
+
+</script>
+	</html>
